@@ -15,7 +15,7 @@ class BMIAssignmentApp extends StatelessWidget {
       title: 'Module 17 — BMI Calculator',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212), // #121212
+        scaffoldBackgroundColor: Colors.black,
         inputDecorationTheme: const InputDecorationTheme(
           border: OutlineInputBorder(),
         ),
@@ -33,11 +33,10 @@ class BMIScreen extends StatefulWidget {
 }
 
 class _BMIScreenState extends State<BMIScreen> {
-  // Unit state
-  bool isKg = true; // true => kg, false => lb
-  String heightUnit = 'cm'; // 'cm', 'm', 'ft' (ft means ft+in)
 
-  // Controllers (allow decimals)
+  bool isKg = true;
+  String heightUnit = 'cm';
+
   final TextEditingController weightController = TextEditingController();
   final TextEditingController heightController = TextEditingController(); // for cm or m
   final TextEditingController feetController = TextEditingController();
@@ -59,10 +58,9 @@ class _BMIScreenState extends State<BMIScreen> {
     super.dispose();
   }
 
-  // Validate inputs and show snackbar if invalid
   bool _validateInputs() {
     try {
-      // weight
+
       final weightText = weightController.text.trim();
       if (weightText.isEmpty) {
         _showSnack('Enter weight (kg or lb).');
@@ -78,7 +76,6 @@ class _BMIScreenState extends State<BMIScreen> {
         return false;
       }
 
-      // height
       if (heightUnit == 'ft') {
         final fText = feetController.text.trim();
         final iText = inchController.text.trim();
@@ -96,7 +93,7 @@ class _BMIScreenState extends State<BMIScreen> {
           _showSnack('Feet and inches must be non-negative.');
           return false;
         }
-        // allow zero total height check later after converting
+
       } else {
         final hText = heightController.text.trim();
         if (hText.isEmpty) {
@@ -128,7 +125,7 @@ class _BMIScreenState extends State<BMIScreen> {
     );
   }
 
-  // Inch auto-carry: if inches >= 12, convert to additional feet
+
   void _autoCarryInches() {
     final inchText = inchController.text.trim();
     if (inchText.isEmpty) return;
@@ -141,31 +138,31 @@ class _BMIScreenState extends State<BMIScreen> {
       final currentFeet = double.tryParse(feetController.text.trim()) ?? 0.0;
       final newFeet = currentFeet + extraFeet;
       feetController.text = newFeet.toStringAsFixed(0);
-      // keep decimals for remaining inches (e.g., 7.5)
+
       final remStr = remainingInch % 1 == 0
           ? remainingInch.toStringAsFixed(0)
-          : remainingInch.toString(); // preserve decimal if present
+          : remainingInch.toString();
       inchController.text = remStr;
     }
   }
 
-  // Compute BMI and set category and color
+
   void _computeBMI() {
     if (!_validateInputs()) return;
 
-    // apply inch auto-carry BEFORE calculation
+
     if (heightUnit == 'ft') {
       _autoCarryInches();
     }
 
-    // Parse weight
+
     double weightVal = double.parse(weightController.text.trim());
     if (!isKg) {
-      // lb -> kg
-      weightVal = weightVal * 0.45359237;
+
+      weightVal = weightVal * 0.45;
     }
 
-    // Parse height into meters
+
     double heightMeters = 0.0;
     if (heightUnit == 'cm') {
       double cm = double.parse(heightController.text.trim());
@@ -174,7 +171,7 @@ class _BMIScreenState extends State<BMIScreen> {
       double m = double.parse(heightController.text.trim());
       heightMeters = m;
     } else {
-      // ft + in
+
       double feet = double.tryParse(feetController.text.trim()) ?? 0.0;
       double inches = double.tryParse(inchController.text.trim()) ?? 0.0;
       final totalInches = feet * 12.0 + inches;
@@ -187,23 +184,23 @@ class _BMIScreenState extends State<BMIScreen> {
     }
 
     final double result = weightVal / pow(heightMeters, 2);
-    // Round to 1 decimal for display
+
     final double rounded = (result * 10).roundToDouble() / 10.0;
 
     String category;
     Color color;
     if (rounded < 18.5) {
       category = 'Underweight';
-      color = Colors.blue; // assignment: Blue
+      color = Colors.blue;
     } else if (rounded < 25.0) {
       category = 'Normal';
-      color = Colors.green; // Green
+      color = Colors.green;
     } else if (rounded < 30.0) {
       category = 'Overweight';
-      color = Colors.orange; // Orange
+      color = Colors.orange;
     } else {
       category = 'Obese';
-      color = Colors.red; // Red
+      color = Colors.red;
     }
 
     setState(() {
@@ -213,10 +210,9 @@ class _BMIScreenState extends State<BMIScreen> {
     });
   }
 
-  // Map BMI into 0..1 for circular gauge
+
   double _bmiToPercent() {
     if (bmi == null) return 0.0;
-    // Cap at 45 for gauge mapping to avoid overflow - assignment range 0-40 suggested earlier
     final capped = bmi!.clamp(0.0, 45.0);
     return capped / 45.0;
   }
@@ -229,7 +225,7 @@ class _BMIScreenState extends State<BMIScreen> {
     return 'ft e.g. 5  inch e.g. 7.5';
   }
 
-  // Quick helper for small label chips
+
   Widget _categoryChip() {
     return Chip(
       label: Text(
@@ -245,7 +241,6 @@ class _BMIScreenState extends State<BMIScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Use scaffold messenger via ScaffoldMessenger.of(context)
       appBar: AppBar(
         title: const Text('Module 17 — BMI Calculator'),
         centerTitle: true,
@@ -255,12 +250,11 @@ class _BMIScreenState extends State<BMIScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
         child: Column(
           children: [
-            // Weight Card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
+                color: Colors.white12,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -307,12 +301,12 @@ class _BMIScreenState extends State<BMIScreen> {
 
             const SizedBox(height: 16),
 
-            // Height Card
+
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
+                color: Colors.white12,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -381,9 +375,7 @@ class _BMIScreenState extends State<BMIScreen> {
                               hintText: 'e.g. 7.5',
                             ),
                             onEditingComplete: () {
-                              // auto carry when user finishes editing inch field
                               _autoCarryInches();
-                              // unfocus so keyboard hides
                               FocusScope.of(context).unfocus();
                             },
                           ),
@@ -409,13 +401,12 @@ class _BMIScreenState extends State<BMIScreen> {
 
             const SizedBox(height: 20),
 
-            // Calculate button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _computeBMI,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: const EdgeInsets.symmetric(vertical: 20),
                 ),
                 child: const Text('Calculate BMI', style: TextStyle(
                     fontSize: 16, fontWeight: FontWeight.bold)),
@@ -424,11 +415,11 @@ class _BMIScreenState extends State<BMIScreen> {
 
             const SizedBox(height: 22),
 
-            // Result area
+
             if (bmi != null)
               Column(
                 children: [
-                  // Circular gauge
+
                   CircularPercentIndicator(
                     radius: 120,
                     lineWidth: 14,
@@ -453,12 +444,11 @@ class _BMIScreenState extends State<BMIScreen> {
 
                   const SizedBox(height: 14),
 
-                  // Result Card with details
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
+                      color: Colors.white12,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -475,7 +465,6 @@ class _BMIScreenState extends State<BMIScreen> {
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold)),
                             const Spacer(),
-                            // Color legend small
                             Row(
                               children: [
                                 _legendItem(Colors.blue, 'Underweight'),
@@ -495,7 +484,6 @@ class _BMIScreenState extends State<BMIScreen> {
                         const SizedBox(height: 6),
                         _categoryChip(),
                         const SizedBox(height: 10),
-                        // Optional suggestions based on category — helpful for UX/assignment
                         _adviceForCategory(),
                       ],
                     ),
@@ -503,30 +491,24 @@ class _BMIScreenState extends State<BMIScreen> {
                 ],
               )
             else
-            // placeholder / instruction
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
+                  color: Colors.black54,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
                     'Enter weight and height, then press "Calculate BMI".',
                     style: TextStyle(color: Colors.white70)),
               ),
-
             const SizedBox(height: 24),
-
-            // Example tests (as assignment asked)
-
           ],
         ),
       ),
     );
   }
 
-  // Small legend widget
   Widget _legendItem(Color color, String label) {
     return Row(
       children: [
@@ -541,7 +523,6 @@ class _BMIScreenState extends State<BMIScreen> {
     );
   }
 
-  // Basic advice per category (small text)
   Widget _adviceForCategory() {
     if (bmiCategory == 'Underweight') {
       return const Text(
@@ -562,8 +543,6 @@ class _BMIScreenState extends State<BMIScreen> {
     }
     return const SizedBox.shrink();
   }
-
-// Example tests card — to verify correctness for assignment
 }
 
 
